@@ -6,27 +6,41 @@ import (
 	"os"
 	"slices"
 	"sync"
+	"time"
 )
 
-const THRESHOLD = 5
+var THRESHOLD = 4
+var REPEATS = 20
 
 func main() {
+	for THRESHOLD = 2; THRESHOLD <= 1024; THRESHOLD = THRESHOLD * 2 {
+		var times []int64
+		for i := 0; i < REPEATS; i += 1 {
+			var l SortableList
+			for i := 0; i < (2 << 24); i += 1 {
+				l = append(l, uint32(rand.Int31()))
+			}
 
-	var l SortableList
-	for i := 0; i < (2 << 24); i += 1 {
-		l = append(l, uint32(rand.Int31()))
-	}
-
-	ConcurrentMergesort(l)
-
-	// Check is it is sorted
-	for i := 1; i < len(l); i += 1 {
-		if l[i-1] > l[i] {
-			fmt.Println("Not sorted")
-			os.Exit(1)
+			start := time.Now()
+			ConcurrentMergesort(l)
+			t := time.Now()
+			elapsed := t.Sub(start)
+			times = append(times, elapsed.Milliseconds())
+			// Check is it is sorted
+			for i := 1; i < len(l); i += 1 {
+				if l[i-1] > l[i] {
+					fmt.Println("Not sorted, threshold:", THRESHOLD)
+					os.Exit(1)
+				}
+			}
 		}
+		sum := 0
+		for t := range times {
+			sum += t
+		}
+		avg := sum / len(times)
+		fmt.Printf("Threshold: %d, Time: %v\n", THRESHOLD, avg)
 	}
-	fmt.Println("Sorted")
 }
 
 type SortableList []uint32
