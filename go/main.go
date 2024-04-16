@@ -10,7 +10,7 @@ import (
 )
 
 var THRESHOLD = 4
-var REPEATS = 20
+var REPEATS = 5
 
 func main() {
 	for THRESHOLD = 2; THRESHOLD <= 1024; THRESHOLD = THRESHOLD * 2 {
@@ -34,11 +34,11 @@ func main() {
 				}
 			}
 		}
-		sum := 0
-		for t := range times {
+		var sum int64
+		for _, t := range times {
 			sum += t
 		}
-		avg := sum / len(times)
+		avg := sum / int64(len(times))
 		fmt.Printf("Threshold: %d, Time: %v\n", THRESHOLD, avg)
 	}
 }
