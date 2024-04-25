@@ -5,6 +5,8 @@ pub fn chunky_mergesort(elements: &mut Vec<u32>, num_threads: usize)  {
     let chunk_size = elements.len() / num_threads;
     let chunks = elements.chunks(chunk_size).collect::<Vec<_>>();
     let destination = Arc::new(Mutex::new(vec![Vec::new(); num_threads]));
+    
+
     thread::scope(|s| {
         for thread_number in 0 .. num_threads {
             let chunks_cloned = chunks.clone();
@@ -18,13 +20,41 @@ pub fn chunky_mergesort(elements: &mut Vec<u32>, num_threads: usize)  {
         // vent på alle
     });
 
-    for veccy in destination.lock().unwrap().iter() {
-        for element in veccy {
-            println!("{}", element);
-        }
+    // naive merge
+    let mut folded = destination.lock().unwrap().chunks(2).fold(Vec::new(), |mut acc: Vec<Vec<u32>>, element| {
+        acc.push(merge(&element[0], &element[1]));
+        acc
+    });
+
+    let mut length = folded.len();
+    while length != 1 {
+        folded = folded.chunks(2).fold(Vec::new(), |mut acc: Vec<Vec<u32>>, element| {
+        //let first = element[0];
+        //let second = element[1];
+        acc.push(merge(&element[0], &element[1]));
+        acc
+        });
+        length = folded.len();
     }
 
+    println!("The result is sorted: {}", is_sorted(folded.first().unwrap().to_vec()));    
 }
+
+fn is_sorted(elements: Vec<u32>) -> bool {
+    for window in elements.windows(2) {
+        let first = window[0];
+        let second = window[1];
+        if first > second {
+            return false;
+        }
+    }
+    true
+}
+
+//fn is_sorted<T: std::iter::Iterator>(elements: T) -> bool {
+//    elements.
+//
+//}
 
 fn mergesort(elements: &[u32]) -> Vec<u32> {
     if elements.len() < THRESHOLD {
