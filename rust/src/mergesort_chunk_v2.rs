@@ -1,6 +1,6 @@
 use std::{sync::{Arc, Mutex}, thread};
 
-const THRESHOLD: usize = 3;
+const THRESHOLD: usize = 2;
 pub fn chunky_mergesort(elements: &mut Vec<u32>, num_threads: usize)  {
     let chunk_size = elements.len() / num_threads;
     let chunks = elements.chunks(chunk_size).collect::<Vec<_>>();
@@ -27,21 +27,21 @@ pub fn chunky_mergesort(elements: &mut Vec<u32>, num_threads: usize)  {
     });
 
     // naive merge
-    let mut folded = destination.lock().unwrap().chunks(2).fold(Vec::new(), |mut acc: Vec<Vec<u32>>, element| {
-        acc.push(merge(&element[0], &element[1]));
-        acc
-    });
+    //let mut folded = destination.lock().unwrap().chunks(2).fold(Vec::new(), |mut acc: Vec<Vec<u32>>, element| {
+    //    acc.push(merge(&element[0], &element[1]));
+    //    acc
+    //});
 
-    let mut length = folded.len();
-    while length != 1 {
-        folded = folded.chunks(2).fold(Vec::new(), |mut acc: Vec<Vec<u32>>, element| {
-        //let first = element[0];
-        //let second = element[1];
-        acc.push(merge(&element[0], &element[1]));
-        acc
-        });
-        length = folded.len();
-    }
+    //let mut length = folded.len();
+    //while length != 1 {
+    //    folded = folded.chunks(2).fold(Vec::new(), |mut acc: Vec<Vec<u32>>, element| {
+    //    //let first = element[0];
+    //    //let second = element[1];
+    //    acc.push(merge(&element[0], &element[1]));
+    //    acc
+    //    });
+    //    length = folded.len();
+    //}
 
     //println!("The result is sorted: {}", is_sorted(folded.first().unwrap().to_vec()));    
 }
