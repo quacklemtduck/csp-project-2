@@ -4,12 +4,13 @@ use mergesortv2::mergesorty;
 use rand::{seq, Rng};
 use std::time::Instant;
 
-use crate::sequential::sequential_sort;
+use crate::{chunky_barrier::chunky_mergesort_barrier, sequential::sequential_sort};
 
 pub mod mergesort;
 pub mod mergesort_chunk;
 pub mod mergesortv2;
 pub mod sequential;
+pub mod chunky_barrier;
 
 fn main() {
     //let mut elements = vec![2u32, 2u32];
@@ -21,9 +22,14 @@ fn main() {
 
     }
     let start = Instant::now();
+    //chunky_mergesort(&mut elements, 4);
+    chunky_mergesort_barrier(&mut elements, 4);
+    let barrier_end = start.elapsed().as_millis();
+    println!("Barrier took {} ms with {} elements", barrier_end, elements.len());
     chunky_mergesort(&mut elements, 4);
-    let end = start.elapsed().as_millis();
-    println!("{}", end);
+    let chunky_no_barrier_end = start.elapsed().as_millis();
+    println!("No barrier took {} ms with {} elements", chunky_no_barrier_end-barrier_end, elements.len());
+
     //println!("{}", elements.len());
     //concurrent_mergesort(&mut elements);
     /*
