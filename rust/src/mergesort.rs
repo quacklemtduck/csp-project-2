@@ -1,6 +1,6 @@
 use std::thread;
 
-const THRESHOLD: usize = 3;
+const THRESHOLD: usize = 1024;
 
 pub fn concurrent_mergesort(elements: &mut Vec<u32>) -> Vec<u32> {
     if elements.len() < THRESHOLD {
