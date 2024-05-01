@@ -31,7 +31,9 @@ func ConcurrentMergesort(list SortableList, threshold int) {
 	merge(list, splitIndex)
 }
 
-func SplitMergesort(list SortableList, numThreads int) SortableList {
+func SplitMergesort(list SortableList, numThreads int, threshold int) SortableList {
+	THRESHOLD = threshold
+
 	lists := splitSlice(list, numThreads)
 
 	var wg sync.WaitGroup
@@ -45,7 +47,7 @@ func SplitMergesort(list SortableList, numThreads int) SortableList {
 	}
 	wg.Wait()
 
-	list = mergeParts(lists)
+	copy(list, mergeParts(lists))
 	return list
 }
 

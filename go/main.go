@@ -14,6 +14,7 @@ func main() {
 	threshold := mergeCommand.Int("t", 5, "the threshold where it stops splitting and starts sorting")
 	split := mergeCommand.Bool("split", false, "if set runs the split version")
 	threads := mergeCommand.Int("th", 1, "the number of threads to start")
+	verify := mergeCommand.Bool("v", false, "if set will verify results")
 
 	partCommand := flag.NewFlagSet("part", flag.ExitOnError)
 	numThreads := partCommand.Int("th", 1, "the number of threads to start")
@@ -30,10 +31,10 @@ func main() {
 	case "merge":
 		mergeCommand.Parse(os.Args[2:])
 		if *split {
-			runSplitMergesort(*threads)
+			runSplitMergesort(*verify, *threads, *threshold)
 			break
 		}
-		runConcurrentMergesort(*threshold)
+		runConcurrentMergesort(*verify, *threshold)
 	case "part":
 		partCommand.Parse(os.Args[2:])
 		data := partitioning.ReadFile(*file)
@@ -55,7 +56,7 @@ func main() {
 	}
 
 }
-func runConcurrentMergesort(threshold int) {
+func runConcurrentMergesort(verify bool, threshold int) {
 	var l []uint32
 	for i := 0; i < (1 << 24); i += 1 {
 		l = append(l, uint32(rand.Int31()))
@@ -63,16 +64,20 @@ func runConcurrentMergesort(threshold int) {
 
 	mergesort.ConcurrentMergesort(l, threshold)
 
-	fmt.Println(mergesort.IsSorted(l))
+	if verify {
+		fmt.Println(mergesort.IsSorted(l))
+	}
 }
 
-func runSplitMergesort(threads int) {
+func runSplitMergesort(verify bool, threads int, threshold int) {
 	var l []uint32
 	for i := 0; i < (1 << 24); i += 1 {
 		l = append(l, uint32(rand.Int31()))
 	}
 
-	list := mergesort.SplitMergesort(l, threads)
+	list := mergesort.SplitMergesort(l, threads, threshold)
 
-	fmt.Println(mergesort.IsSorted(list))
+	if verify {
+		fmt.Println(mergesort.IsSorted(list))
+	}
 }
