@@ -174,8 +174,19 @@ func mergeParts(parts []SortableList) SortableList {
 		return parts[0]
 	}
 
+	var wg sync.WaitGroup
+	wg.Add(2)
 	mid := len(parts) / 2
-	left := mergeParts(parts[:mid])
-	right := mergeParts(parts[mid:])
+	var left SortableList
+	var right SortableList
+	go func() {
+		left = mergeParts(parts[:mid])
+		wg.Done()
+	}()
+	go func() {
+		right = mergeParts(parts[mid:])
+		wg.Done()
+	}()
+	wg.Wait()
 	return splitMerge(left, right)
 }
