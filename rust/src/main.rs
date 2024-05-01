@@ -2,7 +2,7 @@ use mergesort::concurrent_mergesort;
 use mergesort_chunk::chunky_mergesort;
 use mergesortv2::mergesorty;
 use rand::{seq, Rng};
-use std::time::Instant;
+use std::{fs, time::Instant};
 
 use crate::{chunky_barrier::chunky_mergesort_barrier, sequential::sequential_sort};
 
@@ -12,15 +12,26 @@ pub mod mergesortv2;
 pub mod sequential;
 pub mod chunky_barrier;
 
+
+fn read_data(file_path: &str) -> Vec<u32> {
+    let mut input: Vec<u32> = Vec::new();
+    let file = fs::read(file_path).unwrap();
+    for bytes in file.chunks_exact(4) {
+        let value =  u32::from_le_bytes([bytes[0], bytes[1], bytes[2], bytes[3]]);
+        input.push(value);
+    }
+    input
+}
 fn main() {
-    //let mut elements = vec![2u32, 2u32];
+    /*
     let mut elements = Vec::new();
     for _ in 0..(1 << 24) {
         let mut rng = rand::thread_rng();        
         let value: u32 = rng.gen();
         elements.push(value);
 
-    }
+    } */
+    let mut elements = read_data("../merge.out");
     let start = Instant::now();
     //chunky_mergesort(&mut elements, 4);
     chunky_mergesort_barrier(&mut elements, 4);

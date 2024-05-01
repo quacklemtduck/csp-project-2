@@ -8,7 +8,6 @@ pub fn chunky_mergesort_barrier(elements: &mut Vec<u32>, num_threads: usize)  {
     
     let barrier = Arc::new(Barrier::new(num_threads));
     thread::scope(|s| {
-        //let mut handles = Vec::new();
         for thread_number in 0 .. num_threads {
             let cloned_barrier = Arc::clone(&barrier);
 
