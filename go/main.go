@@ -17,6 +17,7 @@ func main() {
 	threads := mergeCommand.Int("th", 1, "the number of threads to start")
 	verify := mergeCommand.Bool("v", false, "if set will verify results")
 	mergeFile := mergeCommand.String("f", "", "the file to load")
+	onlyLoadMerge := mergeCommand.Bool("ol", false, "if set only runs the file loading")
 
 	partCommand := flag.NewFlagSet("part", flag.ExitOnError)
 	numThreads := partCommand.Int("th", 1, "the number of threads to start")
@@ -33,6 +34,10 @@ func main() {
 	case "merge":
 		mergeCommand.Parse(os.Args[2:])
 		list := readMergeFile(*mergeFile)
+		if *onlyLoadMerge {
+			fmt.Println("Only load")
+			return
+		}
 		if *split {
 			runSplitMergesort(list, *verify, *threads, *threshold)
 			break
