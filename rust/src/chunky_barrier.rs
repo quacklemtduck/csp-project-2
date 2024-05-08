@@ -1,7 +1,6 @@
 use std::{sync::{Arc, Mutex, Barrier}, thread};
 
-const THRESHOLD: usize = 3;
-pub fn chunky_mergesort_barrier(elements: &mut Vec<u32>, num_threads: usize)  {
+pub fn chunky_mergesort_barrier(elements: &mut Vec<u32>, num_threads: usize, threshold: usize)  {
     let chunk_size = elements.len() / num_threads;
     let chunks = elements.chunks(chunk_size).collect::<Vec<_>>();
     let destination = Arc::new(Mutex::new(vec![Vec::new(); num_threads]));
@@ -16,7 +15,7 @@ pub fn chunky_mergesort_barrier(elements: &mut Vec<u32>, num_threads: usize)  {
             let cloned_destination = destination.clone();
             let _ = s.spawn(move|| {
                 let my_chunk = chunks_cloned[thread_number];
-                let sorted = mergesort(&my_chunk);
+                let sorted = mergesort(&my_chunk, threshold);
                 destination.lock().unwrap()[thread_number] = sorted;
                 cloned_barrier.wait();
 
@@ -55,8 +54,8 @@ fn is_sorted(elements: Vec<u32>) -> bool {
 //
 //}
 
-fn mergesort(elements: &[u32]) -> Vec<u32> {
-    if elements.len() < THRESHOLD {
+fn mergesort(elements: &[u32], threshold: usize) -> Vec<u32> {
+    if elements.len() < threshold {
         let mut new_elements = Vec::new();
         for element in elements {
             new_elements.push(*element);
@@ -67,8 +66,8 @@ fn mergesort(elements: &[u32]) -> Vec<u32> {
 
     let split_index = elements.len() / 2;
     let (first_half , second_half) = elements.split_at(split_index);
-    let first_half_sorted = mergesort(first_half);
-    let second_half_sorted = mergesort(second_half);
+    let first_half_sorted = mergesort(first_half, threshold);
+    let second_half_sorted = mergesort(second_half, threshold);
 
 
 
