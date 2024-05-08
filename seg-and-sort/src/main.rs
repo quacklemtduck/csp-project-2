@@ -1,4 +1,5 @@
 use std::{io, sync::Arc};
+use std::hint::black_box;
 
 use crate::chunky_barrier::chunky_mergesort_barrier;
 use clap::{command, Parser, Subcommand};
@@ -40,10 +41,10 @@ fn main() -> io::Result<()> {
     let args = Cli::parse();
     match args.command {
         Commands::BenchSortData { file_path } => {  
-            let _elements = chunky_barrier::read_data(&file_path);
+            let _elements = black_box(chunky_barrier::read_data(&file_path));
         },
         Commands::BenchPartitioningData { file_path } => {
-            let _elements = partitioning::read_data(&file_path);
+            let _elements = black_box(partitioning::read_data(&file_path));
         },
         Commands::Mergesort { num_threads, threshold, file_path } => {
             let mut elements = chunky_barrier::read_data(&file_path);
