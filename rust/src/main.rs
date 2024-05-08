@@ -1,8 +1,10 @@
-use std::{fs, io};
+use std::{io, sync::Arc};
 
 use crate::chunky_barrier::chunky_mergesort_barrier;
 use clap::{command, Parser, Subcommand};
+use partitioning::independent_output;
 pub mod chunky_barrier;
+pub mod partitioning;
 
 
 #[derive(Parser)]
@@ -14,47 +16,45 @@ struct Cli {
 
 #[derive(Debug, Subcommand)]
 enum Commands {
-    BenchData {},
+    BenchSortData {
+        file_path: String
+    },
+    BenchPartitioningData {
+        file_path: String
+    },
     #[command(arg_required_else_help = true)]
-    Run {
+    Mergesort {
         num_threads: usize,
-        threshold: usize
+        threshold: usize,
+        file_path: String
+    },
+    #[command(arg_required_else_help = true)]
+    Partitioning {
+        num_threads: i32,
+        num_hash_bits: i32,
+        file_path: String
     }
 }
 
 fn main() -> io::Result<()> {
     let args = Cli::parse();
     match args.command {
-        Commands::BenchData {} => {  
-            let _elements = read_data("../merge.out");
+        Commands::BenchSortData { file_path } => {  
+            let _elements = chunky_barrier::read_data(&file_path);
         },
-        Commands::Run { num_threads, threshold } => {
-            let mut elements = read_data("../merge.out");
+        Commands::BenchPartitioningData { file_path } => {
+            let _elements = partitioning::read_data(&file_path);
+        },
+        Commands::Mergesort { num_threads, threshold, file_path } => {
+            let mut elements = chunky_barrier::read_data(&file_path);
             chunky_mergesort_barrier(&mut elements, num_threads, threshold);
+        },
+        Commands::Partitioning { num_threads, num_hash_bits, file_path} => {
+            let elements = partitioning::read_data(&file_path);
+            independent_output(Arc::new(elements), num_threads, num_hash_bits);
         }
     }
 
 
     Ok(())
-}
-
-fn read_data(file_path: &str) -> Vec<u32> {
-    let mut input: Vec<u32> = Vec::new();
-    let file = fs::read(file_path).unwrap();
-    for bytes in file.chunks_exact(4) {
-        let value =  u32::from_le_bytes([bytes[0], bytes[1], bytes[2], bytes[3]]);
-        input.push(value);
-    }
-    input
-}
-
-fn is_sorted(elements: Vec<u32>) -> bool {
-    for window in elements.windows(2) {
-        let first = window[0];
-        let second = window[1];
-        if first > second {
-            return false;
-        }
-    }
-    true
 }

@@ -1,4 +1,4 @@
-use std::{sync::{Arc, Mutex, Barrier}, thread};
+use std::{fs, sync::{Arc, Barrier, Mutex}, thread};
 
 pub fn chunky_mergesort_barrier(elements: &mut Vec<u32>, num_threads: usize, threshold: usize)  {
     let chunk_size = elements.len() / num_threads;
@@ -37,22 +37,6 @@ pub fn chunky_mergesort_barrier(elements: &mut Vec<u32>, num_threads: usize, thr
     println!("The result is sorted: {}", is_sorted(destination.lock().unwrap().first().unwrap().to_vec()));  
     println!("Size of result is {}", destination.lock().unwrap().first().unwrap().len());
 }
-
-fn is_sorted(elements: Vec<u32>) -> bool {
-    for window in elements.windows(2) {
-        let first = window[0];
-        let second = window[1];
-        if first > second {
-            return false;
-        }
-    }
-    true
-}
-
-//fn is_sorted<T: std::iter::Iterator>(elements: T) -> bool {
-//    elements.
-//
-//}
 
 fn mergesort(elements: &[u32], threshold: usize) -> Vec<u32> {
     if elements.len() < threshold {
@@ -100,4 +84,25 @@ fn merge(first_half: &Vec<u32>, second_half: &Vec<u32>) -> Vec<u32> {
     }
 
     destination
+}
+
+pub fn read_data(file_path: &str) -> Vec<u32> {
+    let mut input: Vec<u32> = Vec::new();
+    let file = fs::read(file_path).unwrap();
+    for bytes in file.chunks_exact(4) {
+        let value =  u32::from_le_bytes([bytes[0], bytes[1], bytes[2], bytes[3]]);
+        input.push(value);
+    }
+    input
+}
+
+fn is_sorted(elements: Vec<u32>) -> bool {
+    for window in elements.windows(2) {
+        let first = window[0];
+        let second = window[1];
+        if first > second {
+            return false;
+        }
+    }
+    true
 }
