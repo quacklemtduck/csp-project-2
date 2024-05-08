@@ -40,6 +40,13 @@ fn main() {
     chunky_mergesort(&mut elements, 4);
     let chunky_no_barrier_end = start.elapsed().as_millis();
     println!("No barrier took {} ms with {} elements", chunky_no_barrier_end-barrier_end, elements.len());
+    chunky_mergesort(&mut elements, 1);
+    let chunky_no_barrier_one_thread = start.elapsed().as_millis();
+    println!("No barrier 1 thread took {} ms with {} elements", chunky_no_barrier_one_thread-chunky_no_barrier_end, elements.len());
+    sequential_sort(&mut elements);
+    let sequential = start.elapsed().as_millis();
+    println!("Sequential took {} ms with {} elements", sequential-chunky_no_barrier_one_thread, elements.len());
+    
 
     //println!("{}", elements.len());
     //concurrent_mergesort(&mut elements);

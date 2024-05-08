@@ -8,39 +8,34 @@ pub fn chunky_mergesort(elements: &mut Vec<u32>, num_threads: usize)  {
     
 
     thread::scope(|s| {
-        let mut handles = Vec::new();
         for thread_number in 0 .. num_threads {
             let chunks_cloned = chunks.clone();
             let destination = destination.clone();
-            let handle = s.spawn(move|| {
+            let _ = s.spawn(move|| {
                 let my_chunk = chunks_cloned[thread_number];
                 let sorted = mergesort(&my_chunk);
                 destination.lock().unwrap()[thread_number] = sorted;
             });
-            handles.push(handle);
         }
-        // vent på alle
-        // men vent, så skal man jo starte threads igen... så skal vi lave en eller anden form for kommunikation mellem threads..
-        // for handle in handles {
-        //     let _ = handle.join();
-        // }
     });
 
     // naive merge
-    let mut folded = destination.lock().unwrap().chunks(2).fold(Vec::new(), |mut acc: Vec<Vec<u32>>, element| {
-        acc.push(merge(&element[0], &element[1]));
-        acc
-    });
-
-    let mut length = folded.len();
-    while length != 1 {
-        folded = folded.chunks(2).fold(Vec::new(), |mut acc: Vec<Vec<u32>>, element| {
-        //let first = element[0];
-        //let second = element[1];
-        acc.push(merge(&element[0], &element[1]));
-        acc
+    if num_threads > 1 {
+        let mut folded = destination.lock().unwrap().chunks(2).fold(Vec::new(), |mut acc: Vec<Vec<u32>>, element| {
+            acc.push(merge(&element[0], &element[1]));
+            acc
         });
-        length = folded.len();
+
+        let mut length = folded.len();
+        while length != 1 {
+            folded = folded.chunks(2).fold(Vec::new(), |mut acc: Vec<Vec<u32>>, element| {
+                //let first = element[0];
+                //let second = element[1];
+                acc.push(merge(&element[0], &element[1]));
+                acc
+            });
+            length = folded.len();
+        }
     }
 
     //println!("The result is sorted: {}", is_sorted(folded.first().unwrap().to_vec()));    
@@ -68,7 +63,7 @@ fn mergesort(elements: &[u32]) -> Vec<u32> {
         for element in elements {
             new_elements.push(*element);
         }
-        new_elements.sort();
+        new_elements.sort(); // this is mergesort...
         return new_elements;
     }
 
