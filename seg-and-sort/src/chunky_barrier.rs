@@ -33,9 +33,6 @@ pub fn chunky_mergesort_barrier(elements: &mut Vec<u32>, num_threads: usize, thr
             });
         }
     });
-
-    println!("The result is sorted: {}", is_sorted(destination.lock().unwrap().first().unwrap().to_vec()));  
-    println!("Size of result is {}", destination.lock().unwrap().first().unwrap().len());
 }
 
 fn mergesort(elements: &[u32], threshold: usize) -> Vec<u32> {
