@@ -20,28 +20,30 @@ func IndependentPartition(threads int, hashbits int, data []KeyVal) {
 
 	chunkSize := math.Ceil(float64(N) / float64(threads))
 
+	buffers := make([][][]KeyVal, threads)
 	var wg sync.WaitGroup
 	for i := 0; i < threads; i += 1 {
 		wg.Add(1)
 		d := data[i*int(chunkSize) : (i+1)*int(chunkSize)]
-		go independentRun(d, int(bufferSize), numBuffers, hashbits, &wg)
+		go independentRun(d, int(bufferSize), numBuffers, hashbits, &wg, buffers, i)
 	}
 	wg.Wait()
+	fmt.Println(buffers[0][0][0])
 }
 
-func independentRun(data []KeyVal, bufferSize int, numBuffers int, hashbits int, wg *sync.WaitGroup) [][]KeyVal {
+func independentRun(data []KeyVal, bufferSize int, numBuffers int, hashbits int, wg *sync.WaitGroup, buffers [][][]KeyVal, id int) {
 	defer wg.Done()
-	buffers := make([][]KeyVal, numBuffers)
-	for i := range buffers {
-		buffers[i] = make([]KeyVal, 0, bufferSize)
+	for i := 0; i < numBuffers; i += 1 {
+		buffers[id] = append(buffers[id], []KeyVal{})
+	}
+	for i := range buffers[id] {
+		buffers[id][i] = make([]KeyVal, 0, bufferSize)
 	}
 
 	for _, kv := range data {
 		h := hash(kv.Key, hashbits)
-		buffers[h] = append(buffers[h], kv)
+		buffers[id][h] = append(buffers[id][h], kv)
 	}
-
-	return buffers
 }
 
 func hash(key uint64, hashbits int) uint64 {
