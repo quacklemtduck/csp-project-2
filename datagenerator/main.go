@@ -76,11 +76,11 @@ func generatePartitionData(filename string, size uint64) {
 	defer file.Close()
 
 	// Create a buffer to store binary data
-	buf := make([]byte, 4*len(data)) // 4 bytes per uint32
+	buf := make([]byte, 8*len(data)) // 4 bytes per uint32
 
 	// Encode []uint32 data to binary and write to the file
 	for i, v := range data {
-		binary.LittleEndian.PutUint64(buf[i*4:], v)
+		binary.LittleEndian.PutUint64(buf[i*8:], v)
 	}
 
 	_, err = file.Write(buf)
