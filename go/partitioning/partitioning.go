@@ -72,7 +72,7 @@ func ReadFile(path string) (data []KeyVal) {
 		bigStuff[i/8] = val
 	}
 
-	data = make([]KeyVal, len(bigStuff))
+	data = make([]KeyVal, len(bigStuff)/2)
 
 	for i := 0; i < len(bigStuff); i += 2 {
 		data = append(data, KeyVal{Key: bigStuff[i], Val: bigStuff[i+1]})
