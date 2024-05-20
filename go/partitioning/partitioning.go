@@ -62,17 +62,21 @@ func ReadFile(path string) (data []KeyVal) {
 		os.Exit(1)
 	}
 
-	var bigStuff []uint64
+	bigStuff := make([]uint64, len(content)/8)
 	for i := 0; i < len(content); i += 8 {
 		var val uint64
 		for j := 0; j < 8; j++ {
 			val |= uint64(content[i+j]) << (uint(j) * 8)
 		}
-		bigStuff = append(bigStuff, val)
+		//bigStuff = append(bigStuff, val)
+		bigStuff[i/8] = val
 	}
+
+	data = make([]KeyVal, len(bigStuff))
 
 	for i := 0; i < len(bigStuff); i += 2 {
 		data = append(data, KeyVal{Key: bigStuff[i], Val: bigStuff[i+1]})
+		data[i/2] = KeyVal{Key: bigStuff[i], Val: bigStuff[i+1]}
 	}
 
 	return data

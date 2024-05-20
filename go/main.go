@@ -48,6 +48,7 @@ func main() {
 		data := partitioning.ReadFile(*file)
 		if *onlyLoad {
 			fmt.Println("Only load")
+			fmt.Println(len(data))
 			return
 		}
 		partitioning.IndependentPartition(*numThreads, *hashBits, data)
