@@ -21,7 +21,7 @@ func main() {
 	case "merge":
 		generateMergeData(*filename, *size)
 	case "partition":
-		generatePartitionData(*filename, uint32(*size))
+		generatePartitionData(*filename, uint64(*size))
 	default:
 		fmt.Printf("Expected 'merge' or 'partition' got %v", *method)
 		os.Exit(1)
@@ -59,12 +59,13 @@ func generateMergeData(filename string, size int64) {
 	fmt.Println("Done!")
 }
 
-func generatePartitionData(filename string, size uint32) {
+func generatePartitionData(filename string, size uint64) {
 	fmt.Printf("Generating partition data of size %v...\n", size)
-	var data []uint32
-	for i := 0; i < int(size); i += 1 {
-		data = append(data, uint32(i))
-		data = append(data, uint32(rand.Int31()))
+	var data []uint64
+	var i uint64
+	for i = 0; i < size; i += 1 {
+		data = append(data, i)
+		data = append(data, uint64(rand.Int63()))
 	}
 
 	fmt.Printf("Writing results to file %v...\n", filename)
@@ -79,7 +80,7 @@ func generatePartitionData(filename string, size uint32) {
 
 	// Encode []uint32 data to binary and write to the file
 	for i, v := range data {
-		binary.LittleEndian.PutUint32(buf[i*4:], v)
+		binary.LittleEndian.PutUint64(buf[i*4:], v)
 	}
 
 	_, err = file.Write(buf)
