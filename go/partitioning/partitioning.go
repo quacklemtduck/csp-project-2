@@ -51,11 +51,27 @@ func hash(key uint64, hashbits int) uint64 {
 }
 
 func ReadFile(path string) (data []KeyVal) {
-	content, err := os.ReadFile(path)
+	file, err := os.Open(path)
 	if err != nil {
-		fmt.Println("Error opening file", err)
-		os.Exit(1)
+		panic(err)
 	}
+	defer file.Close()
+	fileInfo, err := file.Stat()
+	if err != nil {
+		panic(err)
+	}
+	fileSize := fileInfo.Size()
+	content := make([]byte, fileSize)
+	_, err = file.Read(content)
+	if err != nil {
+		panic(err)
+	}
+
+	// content, err := os.ReadFile(path)
+	// if err != nil {
+	// 	fmt.Println("Error opening file", err)
+	// 	os.Exit(1)
+	// }
 
 	if (len(content) % 16) != 0 {
 		fmt.Println("The file length is not correct, over by", len(content)%16)
